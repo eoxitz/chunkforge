@@ -1,0 +1,20 @@
+CHUNKFORGE - Site local para resetar chunks do Minecraft Bedrock
+
+COMO ABRIR (WINDOWS)
+1. Instale Python 3.11 ou 3.12 (inclua Python no PATH).
+2. Extraia todo este ZIP para uma pasta.
+3. Execute INICIAR.bat. Aguarde a instalacao.
+4. Abra http://127.0.0.1:5050 no navegador.
+5. Exporte seu mundo Bedrock como .mcworld ou compacte a pasta do mundo inteira como .zip.
+6. Selecione dimensao e 2 cantos X/Z em coordenadas de blocos.
+7. Clique em 'Resetar chunks e baixar mundo'. Importe o .mcworld gerado.
+
+ATENCAO
+- BACKUP OBRIGATORIO. Operacao destrutiva. O original enviado nao e substituido.
+- Fecha Minecraft antes de exportar mundo para evitar arquivos inconsistentes.
+- As chunks selecionadas sao removidas e o jogo tenta regenera-las na proxima abertura.
+- Dados de entidades em actorprefix podem permanecer no banco; esta ferramenta remove tambem digp da regiao, mas nao garante limpeza total de entidades.
+- Nao e editor visual do mapa, apenas selecao pelas coordenadas.
+- Necessita instalar Python e bibliotecas via Internet somente na primeira execucao.
+- Funciona localmente: o upload nao vai para um servidor externo.
+- Compatibilidade com novas versoes nao garantida; teste em uma copia do mundo.
