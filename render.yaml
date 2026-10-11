@@ -2,6 +2,6 @@ services:
   - type: web
     name: chunkforge-bedrock
     runtime: docker
-    plan: starter
+    plan: free
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
