@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChunkForge - Minecraft Bedrock</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#0b1110;
+ color:#e9f7ed;
+ font-family:Arial,sans-serif;
+ padding:20px;
+}
+main{max-width:750px;margin:auto}
+h1{font-size:35px;color:#85ef96}
+p{color:#b2c8b8;line-height:1.6}
+.card{
+ background:#17231c;
+ border:1px solid #375443;
+ border-radius:16px;
+ padding:22px;
+ margin-top:20px;
+}
+label{display:block;margin:16px 0 8px}
+input,select{
+ width:100%;
+ background:#0e1812;
+ color:white;
+ border:1px solid #46634d;
+ padding:14px;
+ border-radius:9px;
+ font-size:16px;
+}
+.coords{display:flex;gap:10px}
+button{
+ background:#85ef96;
+ color:#102119;
+ width:100%;
+ padding:17px;
+ border:0;
+ border-radius:10px;
+ font-size:17px;
+ font-weight:bold;
+ margin-top:25px;
+}
+button:disabled{opacity:.5}
+.warn{color:#f5c680}
+#status{margin-top:20px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<main>
+<h1>⛏ ChunkForge</h1>
+<p>Resete chunks do seu mundo Minecraft Bedrock.</p>
+
+<div class="card">
+<h2>1. Escolher mundo</h2>
+<input type="file" id="world" accept=".mcworld,.zip">
+
+<h2>2. Escolher dimensão</h2>
+<select id="dimension">
+<option value="overworld">Overworld</option>
+<option value="nether">Nether</option>
+<option value="end">The End</option>
+</select>
+
+<h2>3. Escolher região</h2>
+<p>Digite as coordenadas X e Z dos dois cantos.</p>
+
+<label>Primeiro canto</label>
+<div class="coords">
+<input id="x1" type="number" value="0" placeholder="X">
+<input id="z1" type="number" value="0" placeholder="Z">
+</div>
+
+<label>Segundo canto</label>
+<div class="coords">
+<input id="x2" type="number" value="15" placeholder="X">
+<input id="z2" type="number" value="15" placeholder="Z">
+</div>
+
+<p>Chunks selecionadas: <b id="count">1</b></p>
+
+<p class="warn">
+⚠️ Faça backup do mundo antes de resetar chunks.
+</p>
+
+<button id="reset">Resetar chunks</button>
+<div id="status"></div>
+</div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const fields = ['x1','z1','x2','z2'];
+
+function update(){
+ const [x1,z1,x2,z2] =
+  fields.map(id => Number($(id).value || 0));
+
+ const cx = Math.abs(
+  Math.floor(x2/16)-Math.floor(x1/16)
+ )+1;
+
+ const cz = Math.abs(
+  Math.floor(z2/16)-Math.floor(z1/16)
+ )+1;
+
+ $('count').textContent = cx*cz;
+}
+
+fields.forEach(id => {
+ $(id).addEventListener('input',update);
+});
+update();
+
+$('reset').onclick = async () => {
+ const file = $('world').files[0];
+ const status = $('status');
+
+ if(!file){
+  status.textContent = 'Selecione seu mundo primeiro.';
+  return;
+ }
+
+ const data = new FormData();
+ data.append('world',file);
+ data.append('dimension',$('dimension').value);
+
+ fields.forEach(id => {
+  data.append(id,$(id).value);
+ });
+
+ $('reset').disabled = true;
+ status.textContent = 'Processando chunks...';
+
+ try{
+  const response = await fetch('/reset',{
+   method:'POST',
+   body:data
+  });
+
+  if(!response.ok){
+   let message = 'Erro ao processar o mundo.';
+   try{
+    const error = await response.json();
+    message = error.error || message;
+   }catch(e){}
+   throw new Error(message);
+  }
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mundo_resetado.mcworld';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url),60000);
+  status.textContent = 'Mundo gerado! Confira o download.';
+
+ }catch(error){
+  status.textContent = 'Erro: '+error.message;
+ }finally{
+  $('reset').disabled = false;
+ }
+};
+</script>
+</body>
+</html>
